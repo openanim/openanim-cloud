@@ -1,258 +1,436 @@
-# OpenAnim Cloud — Plan
-
 ## Overview
 
-Two repositories, one product:
+OpenAnim is split into two separate systems:
 
-| Repo | Visibility | Role |
-|------|-----------|------|
-| `openanim/openanim` | Public (OSS) | Core orchestrator + backends (Manim, Remotion, FFmpeg, ...) |
-| `openanim/openanim-cloud` | Private | Commercial website + services built on top of openanim |
+| System | Visibility | Role |
+|---|---|---|
+| `openanim/openanim` | Public (OSS) | Deterministic orchestration engine + rendering providers |
+| `openanim/openanim-cloud` | Private | Commercial SaaS platform built around the OSS engine |
 
-OpenAnim the OSS repo is the engine. Anyone can clone it, bring their own LLM key, and generate videos locally via CLI. No dependencies on us.
+The OSS repository is the core execution engine. Users can clone it, bring their own LLM key, and generate videos locally through the CLI without any dependency on OpenAnim Cloud.
 
-OpenAnim Cloud wraps that engine with a SaaS layer — web UI, job queuing, cloud rendering, context retrieval, analytics, premium models. The private repo embeds openanim as a **git submodule**, not a pip package. This keeps the OSS CLI fully standalone for local users while letting the cloud fork run ahead of the public release when needed.
+The cloud platform adds:
+- hosted rendering
+- queues
+- distributed workers
+- accounts
+- analytics
+- storage
+- premium orchestration features
+- API access
 
+The private cloud repo should NOT embed the OSS repo as a git submodule.
 
-## OpenAnim (OSS) — Scope
+Instead:
+- the OSS engine is versioned and installable
+- workers depend on it as a package
+- boundaries are maintained through APIs and schemas rather than Git linkage
 
+---
+
+# Core Philosophy
+
+OpenAnim is not just "AI video generation".
+
+Architecturally, it is closer to:
+
+> deterministic multimodal compilation
+
+Meaning:
+
+| Concept | Equivalent |
+|---|---|
+| Prompt | Source input |
+| Planning | Compilation stage |
+| Providers | Execution runtimes |
+| Execution graph | Build pipeline |
+| Render artifact | Binary/output |
+| Orchestrator | Compiler/runtime coordinator |
+
+This framing helps define cleaner system boundaries.
+
+---
+
+# High-Level Architecture
+
+```text
+                    +-------------------+
+                    | Next.js Frontend  |
+                    +-------------------+
+                              |
+                              v
+                    +-------------------+
+                    | Hono API Gateway  |
+                    | auth/jobs/routes  |
+                    +-------------------+
+                              |
+               +--------------+-------------+
+               |                            |
+               v                            v
+     +------------------+        +------------------+
+     | Queue (Redis)    |        | PostgreSQL       |
+     +------------------+        +------------------+
+               |
+               v
+     +----------------------+
+     | Render Workers       |
+     | Python / Node        |
+     +----------------------+
+               |
+               v
+     +----------------------+
+     | openanim OSS Engine  |
+     +----------------------+
 ```
+
+---
+
+## OpenAnim should use:
+- versioned packages
+- stable APIs
+- typed contracts
+- isolated services
+
+---
+
+# Tentative Repository Structure
+
+## OSS Repository
+
+```text
 openanim/
-├── app.py                       # CLI entry point + orchestrator
-├── backend/
-│   ├── _config.py               # Reads [tool.openanim] from pyproject.toml
-│   ├── base.py                  # Backend ABC (system_prompt, validate, render)
-│   ├── manim.py                 # Manim backend
-│   └── ...                      # Remotion, FFmpeg, PlantUML (future)
-├── retriever/
-│   └── bm25.py                  # BM25 keyword-based context retrieval
-├── pyproject.toml               # Dependencies + [tool.openanim] config
-└── package.json                 # bun convenience scripts
+├── orchestrator/
+├── planner/
+├── providers/
+│   ├── manim/
+│   ├── remotion/
+│   ├── plantuml/
+│   └── mermaid/
+├── execution/
+├── artifacts/
+├── retrieval/
+├── llm/
+├── schemas/
+├── cli/
+├── pyproject.toml
+└── README.md
 ```
 
-**What it does:**
-- Takes a natural language prompt via CLI
-- Retrieves relevant API docs via BM25 (local, no embedding API needed)
-- Calls any OpenAI-compatible LLM (user provides key) to generate code
-- Validates, heals (retries on error, max 3 attempts), and renders
-- Pluggable backends — adding a new engine means implementing the Backend ABC
+---
 
-**What it does NOT have (moved to cloud):**
-- Vector-based RAG / embeddings
-- Response caching
-- Pipeline logging / analytics
-- User accounts
-- Job queuing
+## Tentative Cloud Repository
 
-
-## OpenAnim Cloud (Private) — Scope
-
-A pnpm monorepo that builds the commercial service on top of the OSS engine.
-
-### Tech Stack
-
-| Layer | Choice | Why |
-|-------|--------|-----|
-| Package manager | pnpm | Mature, fast, great workspace support |
-| Monorepo orchestration | Turborepo | Caching, parallel tasks, well-proven |
-| Frontend | Next.js 15 (App Router) | SSR, API routes, dominant React framework |
-| Styling | CSS Modules | Vanilla, no vendor lock-in |
-| API server | Fastify | Mature (est. 2016), fast, great plugin system, OpenAPI built-in |
-| Database | PostgreSQL | Battle-tested, scales |
-| ORM | Drizzle ORM | Type-safe, lightweight, good migrations |
-| Queue | BullMQ + Redis | Mature job queue, widely used in production |
-| Workers | Python subprocess | Calls openanim directly (import, not subprocess) |
-| Auth (future) | NextAuth v5 | Open-source, Google OAuth + credentials, no vendor lock-in |
-| Email | Resend | Simple API, good free tier |
-| Hosting (frontend) | Vercel | Native Next.js support |
-| Hosting (backend) | TBD | Railway / Fly.io / VPS — decide later |
-| Hosting (workers) | TBD | Needs GPU for Manim rendering |
-
-### Monorepo Structure
-
-```
+```text
 openanim-cloud/
 ├── pnpm-workspace.yaml
-├── package.json                      # root scripts, dependencies
-├── turbo.json                        # Turborepo pipeline config
-├── tsconfig.base.json                # shared TS config
+├── turbo.json
+├── package.json
+├── tsconfig.base.json
+├── docker-compose.yml
 ├── .env.example
-├── .gitignore
-├── docker-compose.yml                # postgres + redis (local dev)
 │
 ├── apps/
-│   ├── web/                          # Next.js 15 (frontend)
-│   │   ├── package.json
-│   │   ├── next.config.ts
-│   │   ├── tsconfig.json
-│   │   ├── src/
-│   │   │   ├── app/
-│   │   │   │   ├── layout.tsx
-│   │   │   │   ├── page.tsx          # landing page
-│   │   │   │   └── globals.css
-│   │   │   └── components/
-│   │   │       ├── Hero.tsx
-│   │   │       ├── HowItWorks.tsx
-│   │   │       ├── Backends.tsx
-│   │   │       ├── WhyDeterministic.tsx
-│   │   │       ├── Waitlist.tsx
-│   │   │       ├── Footer.tsx
-│   │   │       └── TerminalDemo.tsx
-│   │   └── public/
-│   │
-│   └── api/                          # Fastify API server
-│       ├── package.json
-│       ├── tsconfig.json
-│       ├── src/
-│       │   ├── index.ts             # Fastify app entry
-│       │   ├── plugins/
-│       │   │   ├── cors.ts
-│       │   │   └── db.ts            # Drizzle client plugin
-│       │   ├── routes/
-│       │   │   └── waitlist.ts      # POST /api/waitlist
-│       │   └── schemas/
-│       │       └── waitlist.ts      # Zod validation
-│       └── drizzle/
-│           └── migrations/
+│   ├── web/                  # Next.js frontend
+│   └── api/                  # Hono API server
 │
 ├── packages/
-│   ├── db/                           # Drizzle schema (shared)
-│   │   ├── package.json
-│   │   ├── tsconfig.json
-│   │   ├── drizzle.config.ts
-│   │   └── src/
-│   │       ├── schema.ts            # waitlist table + future tables
-│   │       └── index.ts             # db client export
-│   │
-│   └── shared/                       # Shared types, constants, utils
-│       ├── package.json
-│       ├── tsconfig.json
-│       └── src/
-│           └── types.ts
+│   ├── db/                   # Drizzle schema
+│   ├── shared/               # Shared TS utilities/types
+│   └── sdk/                  # Internal cloud SDK
 │
-├── workers/                          # Python render workers (future)
-│   ├── pyproject.toml
-│   ├── worker.py                     # from openanim.orchestrator import run
-│   └── requirements.txt
+├── workers/
+│   ├── python/
+│   └── remotion/
 │
-└── openanim/                         # Git submodule → openanim/openanim
-    └── ...                           # The OSS orchestrator code
+└── infra/
+    ├── docker/
+    ├── deployment/
+    └── monitoring/
 ```
 
-### How OpenAnim Integrates
+---
 
-The `openanim/` directory is a **git submodule** pointing to `openanim/openanim`.
+# Technology Stack
 
-**For local users (OSS):**
+| Layer | Choice |
+|---|---|
+| Frontend | Next.js |
+| API Layer | Hono |
+| Runtime | Bun |
+| Monorepo | pnpm + Turborepo |
+| Database | PostgreSQL |
+| ORM | Drizzle ORM |
+| Queue | BullMQ |
+| Cache | Redis |
+| Storage | S3 / Cloudflare R2 / TBD |
+| OSS Engine | Python |
+| Infra | Docker |
+| Workers | Python + Node.js |
+| Auth | NextAuth v5 / TBD |
+| Email | Resend / TBD |
+
+---
+
+# Provider-Based Architecture
+
+Do NOT think of:
+- Manim
+- Remotion
+- Mermaid
+- PlantUML
+
+as "backends".
+
+They are actually:
+
+> execution providers
+
+This distinction matters because eventually one video may involve multiple providers.
+
+Example future pipeline:
+
+```text
+Prompt
+↓
+Scene Planning
+↓
+Execution Graph
+↓
+Provider Dispatch
+↓
+Composition
+↓
+Encoding
+↓
+Artifact Output
 ```
-git clone https://github.com/openanim/openanim
-cd openanim
-uv run python app.py "draw a red circle" -q h
-```
-Standalone. No cloud dependency. Works offline.
 
-**For the cloud:**
-```
-# Worker (Python) directly imports openanim
-# workers/worker.py
-from pathlib import Path
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent / "openanim"))
-from app import generate_code, self_healing_loop, clean_code
-from backend import get_backend
+Meaning:
+- one scene may use Manim
+- another may use Remotion
+- another may generate diagrams
+- another may composite assets
 
-def render_job(prompt, backend="manim", quality="l"):
-    be = get_backend(backend)
-    code, _ = generate_code(prompt, be)
-    code = clean_code(code)
-    success = self_healing_loop(code, prompt, be, quality, max_attempts=3)
-    # upload result to S3/R2, update job status in DB
+The abstraction should therefore evolve toward:
+
+```python
+provider.execute(task)
 ```
 
-**Staying ahead of OSS:**
-- Point the submodule at a branch or commit, not `main`
-- Develop new backends/features in a private branch
-- Test with the full cloud stack
-- Merge upstream to OSS when stable
-- Bump the submodule ref when ready
+rather than:
 
-### Database Schema (initial)
+```python
+backend.render()
+```
+
+---
+
+# OSS Engine Design
+
+this is still being researched as to what is the best approach.
+
+The OSS engine should expose a stable SDK surface.
+
+Avoid:
+
+```python
+from app import generate_code
+```
+
+Instead:
+
+```python
+from openanim import Orchestrator
+```
+
+Example:
+
+```python
+orc = Orchestrator()
+
+result = await orc.generate(
+    prompt="Explain Fourier transforms visually",
+    provider="manim"
+)
+```
+
+This creates:
+- stable interfaces
+- easier testing
+- package compatibility
+- future plugin support
+
+---
+
+# Package-Based Integration
+
+This is a very critical integration design decision. Still needs a lot of research.
+
+```toml
+[project.dependencies]
+openanim = { git = "ssh://git@github.com/openanim/openanim.git" }
+```
+
+Workers consume released versions of the OSS engine.
+
+Benefits:
+- version pinning
+- rollback support
+- cleaner CI/CD
+- independent deployments
+- stable dependency management
+
+---
+
+# Worker Architecture _still needs a lot of research_
+
+The actual hard problem in OpenAnim is NOT orchestration.
+
+It is:
+- deterministic reproducibility
+- rendering isolation
+- dependency stability
+- execution safety
+
+Especially because:
+- FFmpeg
+- LaTeX
+- Cairo
+- Chromium
+- Node
+- Python
+- fonts
+- GPU rendering
+
+all interact in fragile ways.
+
+---
+
+# Container Strategy - Tentative
+
+One Docker image per provider.
+
+Example:
+
+```text
+openanim-provider-manim
+openanim-provider-remotion
+openanim-provider-diagram
+```
+
+Execution flow:
+
+```text
+Job
+→ Queue
+→ Provider Container
+→ Artifact
+→ Storage
+```
+
+This architecture scales much better operationally.
+
+---
+
+# Worker Types - Tentative structure
+
+## Python Workers
+
+Responsible for:
+- Manim
+- PlantUML
+- Mermaid
+- orchestration logic
+- planning
+- retrieval
+- execution graphs
+
+---
+
+## Node.js Workers
+
+Responsible for:
+- Remotion
+- browser rendering
+- composition pipelines
+- web-native rendering tasks
+
+---
+
+# Initial Database Schema
 
 ```sql
--- packages/db/src/schema.ts
-
 waitlist:
-  id          uuid        primary key, default gen_random_uuid()
-  email       text        unique, not null
-  status      enum        'pending' | 'invited' | 'active', default 'pending'
-  created_at  timestamp   default now()
+  id          uuid primary key
+  email       text unique not null
+  status      enum('pending', 'invited', 'active')
+  created_at  timestamp default now()
 ```
 
-Future tables: users, projects, jobs, render_outputs, api_keys.
+Highly Tentative Future tables:
 
-### API Routes (initial)
+- users
+- sessions
+- projects
+- jobs
+- render_outputs
+- artifacts
+- provider_logs
+- api_keys
+- billing
+- usage
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/waitlist` | Accept email, insert into waitlist table |
+---
+
+# Initial API Routes
+
+| Method | Route | Purpose |
+|---|---|---|
+| POST | `/api/waitlist` | Join waitlist |
 | GET | `/api/health` | Health check |
+| POST | `/api/jobs` | Submit render job |
+| GET | `/api/jobs/:id` | Get job status |
+| GET | `/api/artifacts/:id` | Download render output |
 
-### Landing Page — Design Brief
+---
 
-- **Aesthetic**: Dark terminal (background #0a0a0f, accent #00ff88 green)
-- **Fonts**: JetBrains Mono (code), Inter (body)
-- **Sections**: Hero → How It Works → Backend Engines → Why Deterministic → Waitlist → Footer
-- **Core message**: "Video generation that doesn't hallucinate. Describe your video, get real, editable code. Rendered deterministically through Manim, Remotion, and FFmpeg."
-- **CTA**: Join waitlist (email form) + Star on GitHub
-- The waitlist form POSTs to the Fastify API. If API isn't running locally, show a mock success state.
-- No frameworks, no Tailwind, no UI kits — just CSS Modules
+# Landing Page Design
 
+## Aesthetic
 
-## Phases
+- dark terminal-inspired UI
+- minimal futuristic style
+- emphasis on deterministic generation
 
-### Phase 1 — Now (Landing + Waitlist)
-- [ ] Scaffold pnpm monorepo with Turborepo
-- [ ] Set up Docker Compose (PostgreSQL)
-- [ ] `packages/db`: Drizzle schema + client
-- [ ] `apps/api`: Fastify server with POST /api/waitlist
-- [ ] `apps/web`: Next.js landing page (all sections, dark terminal design)
-- [ ] Add openanim as git submodule (placeholder)
-- [ ] Deploy frontend to Vercel
+## Colors
 
-### Phase 2 — Auth + Dashboard
-- [ ] NextAuth v5 (Google OAuth + email magic link)
-- [ ] User table + sessions in DB
-- [ ] Basic dashboard (empty shell, shows nothing yet)
-- [ ] Protected API routes
+I want to go with full black and white theme 
 
-### Phase 3 — Rendering Pipeline
-- [ ] BullMQ + Redis job queue
-- [ ] Python render workers (import openanim, call orchestrator)
-- [ ] Job status tracking (pending → rendering → done/failed)
-- [ ] Upload rendered videos to S3/R2
-- [ ] Dashboard: submit prompts, view job history, download videos
+## Fonts
 
-### Phase 4 — Enhanced Services
-- [ ] BM25 context retrieval service
-- [ ] LLM caching layer (Redis)
-- [ ] Pipeline analytics dashboard
-- [ ] Model routing (free vs premium LLM)
-- [ ] Prompt template library
-- [ ] Concurrent rendering (multiple workers)
+| Usage | Font |
+|---|---|
+| Code | JetBrains Mono |
+| UI/Text | Inter |
 
-### Phase 5 — Scale
-- [ ] GPU worker pool for Manim rendering
-- [ ] Usage-based pricing / billing
-- [ ] Team accounts
-- [ ] API for third-party integrations
-- [ ] Embeddable video player
+## Sections
 
+```text
+Hero
+↓
+How It Works
+↓
+Providers
+↓
+Why Deterministic
+↓
+Examples
+↓
+Waitlist
+↓
+Footer
+```
 
-## Open Questions
+## Core Messaging
 
-1. **Worker hosting**: Railway? Fly.io GPU? AWS Batch? Needs to run Python + Manim + FFmpeg.
-2. **Video storage**: S3? Cloudflare R2? Bunny CDN?
-3. **Email provider**: Resend works for transactional email. What about marketing drip?
-4. **LLM for cloud users**: Which model is the paid default? Do users bring their own key or use ours?
-5. **Rendering timeouts**: Manim renders can take minutes. What's the max job duration?
-6. **Remotion worker**: Remotion is Node.js, so it would need a separate TypeScript worker (not Python). How does that fit into the worker pool?
+> "Video generation that doesn't hallucinate. Describe your video and receive deterministic, editable rendering pipelines powered by Manim, Remotion, and programmable visual systems."
