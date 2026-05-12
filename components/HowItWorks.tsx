@@ -33,11 +33,10 @@ export default function HowItWorks() {
         <p className="section-label">How It Works</p>
         <h2 className="section-title" id="how-title">From prompt to rendered artifact.</h2>
         <p className="section-desc">
-          OpenAnim is not a black box. It's a compiler — transparent at every stage.
+          OpenAnim is not a black box. It&apos;s a compiler — transparent at every stage.
         </p>
 
         <div className="howitworks-wrap">
-          {/* Blueprint pipeline diagram */}
           <div className="pipeline-diagram" role="img" aria-label="OpenAnim rendering pipeline diagram">
             <div className="pipeline-corner tl" aria-hidden="true" />
             <div className="pipeline-corner tr" aria-hidden="true" />
@@ -55,14 +54,11 @@ export default function HowItWorks() {
                     <div className="step-desc">{step.desc}</div>
                   </div>
                 </div>
-                {i < STEPS.length - 1 && (
-                  <div className="step-connector" aria-hidden="true" />
-                )}
+                {i < STEPS.length - 1 && <div className="step-connector" aria-hidden="true" />}
               </div>
             ))}
           </div>
 
-          {/* Explanatory text */}
           <div className="howitworks-text">
             {HW_ITEMS.map((item) => (
               <div className="hw-item" key={item.label}>

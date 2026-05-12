@@ -1,5 +1,4 @@
 'use client';
-import { useScrollY } from '@/hooks/useScrollY';
 
 const LogoSVG = () => (
   <svg width="420" height="129" viewBox="0 0 650 200" xmlns="http://www.w3.org/2000/svg" aria-label="OpenAnim logo">
@@ -11,23 +10,12 @@ const LogoSVG = () => (
 );
 
 export default function Hero() {
-  const scrollY = useScrollY();
-
-  const scrollToWaitlist = () => {
-    document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' });
-  };
-  const scrollToHow = () => {
-    document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const scrollToWaitlist = () => document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToHow      = () => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
 
   return (
     <section className="hero" id="hero" aria-labelledby="hero-title">
-      {/* Parallax grid layer */}
-      <div
-        className="grid-bg"
-        style={{ transform: `translateY(${scrollY * 0.25}px)` }}
-        aria-hidden="true"
-      />
+      <div className="grid-bg" aria-hidden="true" />
 
       <div className="hero-logo fade-up fade-up-1" aria-hidden="true">
         <LogoSVG />

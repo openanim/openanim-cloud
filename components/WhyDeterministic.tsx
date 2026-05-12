@@ -27,15 +27,12 @@ export default function WhyDeterministic() {
       <div className="divider" />
       <div className="section">
         <p className="section-label">Why Deterministic</p>
-        <h2 className="section-title" id="why-title">
-          Code, not chance.
-        </h2>
+        <h2 className="section-title" id="why-title">Code, not chance.</h2>
         <p className="section-desc">
           Traditional AI video generation is a lottery. OpenAnim is a compiler.
         </p>
 
         <div className="why-grid">
-          {/* Code snippet */}
           <div
             className="code-block"
             data-title="// openanim sdk example"
@@ -57,7 +54,6 @@ export default function WhyDeterministic() {
             <span className="code-key">print</span>(result.artifact_url)
           </div>
 
-          {/* Why points */}
           <div className="why-points" role="list">
             {WHY_POINTS.map((p) => (
               <div className="why-point" key={p.title} role="listitem">
