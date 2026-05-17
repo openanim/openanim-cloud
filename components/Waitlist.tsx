@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { joinWaitlist } from '@/app/actions/waitlist';
 
 type State = 'idle' | 'loading' | 'success' | 'duplicate' | 'error';
 
@@ -13,19 +14,15 @@ export default function Waitlist() {
     if (!email) return;
     setState('loading');
     try {
-      const res = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
+      const data = await joinWaitlist(email);
+      
+      if (data.success) {
         setState('success');
-        setMsg("You're on the list. We'll reach out before launch.");
+        setMsg(data.message || "You're on the list.");
         setEmail('');
-      } else if (res.status === 409) {
+      } else if (data.status === 'duplicate') {
         setState('duplicate');
-        setMsg("You're already on the waitlist.");
+        setMsg(data.error || "You're already on the waitlist.");
       } else {
         setState('error');
         setMsg(data.error || 'Something went wrong. Try again.');

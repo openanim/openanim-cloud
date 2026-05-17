@@ -1,4 +1,3 @@
-'use client';
 import Link from 'next/link';
 
 const LogoSVG = ({ width = 80 }: { width?: number }) => {
@@ -14,10 +13,6 @@ const LogoSVG = ({ width = 80 }: { width?: number }) => {
 };
 
 export default function Nav() {
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
     <nav className="nav" role="navigation" aria-label="Main navigation">
       <Link href="/" className="nav-logo" aria-label="OpenAnim home">
@@ -25,19 +20,20 @@ export default function Nav() {
         <span className="nav-logo-text">OpenAnim</span>
       </Link>
       <div className="nav-right">
-        <button className="nav-link" onClick={() => scrollTo('how-it-works')} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+        <Link href="#how-it-works" className="nav-link">
           How It Works
-        </button>
-        <button className="nav-link" onClick={() => scrollTo('providers')} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+        </Link>
+        <Link href="#providers" className="nav-link">
           Providers
-        </button>
-        <button className="nav-link" onClick={() => scrollTo('why')} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+        </Link>
+        <Link href="#why" className="nav-link">
           Why OpenAnim
-        </button>
-        <button className="nav-cta" onClick={() => scrollTo('waitlist')}>
+        </Link>
+        <Link href="#waitlist" className="nav-cta">
           Join Waitlist
-        </button>
+        </Link>
       </div>
     </nav>
   );
 }
+
