@@ -16,7 +16,10 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OpenAnim — Deterministic Video Generation",
+  title: {
+    default: "OpenAnim — Deterministic Video Generation",
+    template: "%s | OpenAnim"
+  },
   description:
     "Video generation that doesn't hallucinate. Describe your video and receive deterministic, editable rendering pipelines powered by Manim, Remotion, and programmable visual systems.",
   keywords: ["AI video generation", "Manim", "Remotion", "deterministic rendering", "OpenAnim"],
@@ -24,7 +27,13 @@ export const metadata: Metadata = {
     title: "OpenAnim — Deterministic Video Generation",
     description: "Video generation that doesn't hallucinate.",
     type: "website",
+    siteName: "OpenAnim",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "OpenAnim — Deterministic Video Generation",
+    description: "Video generation that doesn't hallucinate.",
+  }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
