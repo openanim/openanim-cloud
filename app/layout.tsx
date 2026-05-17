@@ -15,7 +15,10 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500", "700"],
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://openanim.vercel.app';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
   title: {
     default: "OpenAnim — Deterministic Video Generation",
     template: "%s | OpenAnim"

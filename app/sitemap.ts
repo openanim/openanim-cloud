@@ -1,9 +1,11 @@
 import type { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://openanim.vercel.app';
+
   return [
     {
-      url: 'https://openanim.com', // Replace with actual production domain when available
+      url: baseUrl,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 1,
