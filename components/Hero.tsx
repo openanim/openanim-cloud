@@ -1,4 +1,4 @@
-'use client';
+import Link from 'next/link';
 
 const LogoSVG = () => (
   <svg width="420" height="129" viewBox="0 0 650 200" xmlns="http://www.w3.org/2000/svg" aria-label="OpenAnim logo">
@@ -10,12 +10,10 @@ const LogoSVG = () => (
 );
 
 export default function Hero() {
-  const scrollToWaitlist = () => document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' });
-  const scrollToHow      = () => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
-
   return (
     <section className="hero" id="hero" aria-labelledby="hero-title">
       <div className="grid-bg" aria-hidden="true" />
+      <div className="hero-glow" aria-hidden="true" />
 
       <div className="hero-logo fade-up fade-up-1" aria-hidden="true">
         <LogoSVG />
@@ -35,12 +33,12 @@ export default function Hero() {
       </p>
 
       <div className="hero-actions fade-up fade-up-4">
-        <button className="btn-primary" onClick={scrollToWaitlist} id="hero-waitlist-btn">
+        <Link href="#waitlist" className="btn-primary" id="hero-waitlist-btn">
           Join the Waitlist
-        </button>
-        <button className="btn-secondary" onClick={scrollToHow} id="hero-learn-btn">
+        </Link>
+        <Link href="#how-it-works" className="btn-secondary" id="hero-learn-btn">
           How It Works →
-        </button>
+        </Link>
       </div>
 
       <div className="hero-scroll-hint" aria-hidden="true">
