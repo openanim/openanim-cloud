@@ -1,4 +1,4 @@
-import Link from 'next/link';
+
 
 const LogoSVG = () => (
   <svg width="420" height="129" viewBox="0 0 650 200" xmlns="http://www.w3.org/2000/svg" aria-label="OpenAnim logo">
@@ -33,12 +33,12 @@ export default function Hero() {
       </p>
 
       <div className="hero-actions fade-up fade-up-4">
-        <Link href="#waitlist" className="btn-primary" id="hero-waitlist-btn">
+        <a href="#waitlist" className="btn-primary" id="hero-waitlist-btn">
           Join the Waitlist
-        </Link>
-        <Link href="#how-it-works" className="btn-secondary" id="hero-learn-btn">
+        </a>
+        <a href="#how-it-works" className="btn-secondary" id="hero-learn-btn">
           How It Works →
-        </Link>
+        </a>
       </div>
 
       <div className="hero-scroll-hint" aria-hidden="true">
