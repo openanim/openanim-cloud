@@ -20,18 +20,18 @@ export default function Nav() {
         <span className="nav-logo-text">OpenAnim</span>
       </Link>
       <div className="nav-right">
-        <Link href="#how-it-works" className="nav-link">
+        <a href="#how-it-works" className="nav-link">
           How It Works
-        </Link>
-        <Link href="#providers" className="nav-link">
+        </a>
+        <a href="#providers" className="nav-link">
           Providers
-        </Link>
-        <Link href="#why" className="nav-link">
+        </a>
+        <a href="#why" className="nav-link">
           Why OpenAnim
-        </Link>
-        <Link href="#waitlist" className="nav-cta">
+        </a>
+        <a href="#waitlist" className="nav-cta">
           Join Waitlist
-        </Link>
+        </a>
       </div>
     </nav>
   );
