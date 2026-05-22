@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
-    "@openanim/shared": "file:../../packages/shared",
+    "@openanim/shared": "workspace:*",
     "hono": "^4.7.11"
   },
   "devDependencies": {

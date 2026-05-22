@@ -2,10 +2,7 @@
   "name": "openanim-cloud",
   "version": "0.1.0",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "packageManager": "pnpm@11.2.2",
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",

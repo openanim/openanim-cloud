@@ -10,7 +10,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@openanim/shared": "*",
+    "@openanim/shared": "workspace:*",
     "@auth/core": "^0.38.0",
     "@neondatabase/serverless": "^1.1.0",
     "@vercel/analytics": "^2.0.1",
