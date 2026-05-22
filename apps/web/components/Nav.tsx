@@ -29,9 +29,9 @@ export default function Nav() {
         <a href="#why" className="nav-link">
           Why OpenAnim
         </a>
-        <a href="#waitlist" className="nav-cta">
-          Join Waitlist
-        </a>
+        <Link href="/login" className="nav-cta">
+          Sign In
+        </Link>
       </div>
     </nav>
   );

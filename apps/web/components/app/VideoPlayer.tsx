@@ -2,8 +2,13 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Play, Pause, Volume2, VolumeX, Maximize2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import type { RenderSegment } from "@/lib/mock-session";
+
+// Module-level constant — computed identically on server and client, eliminating hydration mismatch
+const WAVEFORM_BARS = Array.from({ length: 48 }, (_, i) =>
+  Math.round((Math.abs(Math.sin(i * 0.4) * 0.6 + Math.sin(i * 0.9) * 0.3) * 100) * 100) / 100
+);
+
 
 interface VideoPlayerProps {
   src?: string;
@@ -53,10 +58,6 @@ export default function VideoPlayer({ src, segments = [], durationSec }: VideoPl
     if (videoRef.current) videoRef.current.currentTime = t;
   };
 
-  // waveform bars for placeholder
-  const bars = Array.from({ length: 48 }, (_, i) =>
-    Math.abs(Math.sin(i * 0.4) * 0.6 + Math.sin(i * 0.9) * 0.3) * 100
-  );
 
   return (
     <div className="relative bg-app-black aspect-video rounded-sm overflow-hidden group select-none">
@@ -83,7 +84,7 @@ export default function VideoPlayer({ src, segments = [], durationSec }: VideoPl
           />
           {/* Waveform */}
           <div className="flex items-end gap-[2px] h-12 mb-3 z-10">
-            {bars.map((h, i) => (
+            {WAVEFORM_BARS.map((h, i) => (
               <div
                 key={i}
                 className="w-[3px] rounded-full bg-app-primary/30"

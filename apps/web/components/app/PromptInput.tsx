@@ -1,38 +1,15 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { motion } from "framer-motion";
-import type { Provider } from "@/lib/mock-session";
 
 interface PromptInputProps {
   onSubmit: (text: string) => void;
   isStreaming: boolean;
-  provider: Provider;
-  onProviderChange: (p: Provider) => void;
 }
 
-const PROVIDERS: { value: Provider; label: string }[] = [
-  { value: "manim", label: "Manim" },
-  { value: "remotion", label: "Remotion" },
-  { value: "ffmpeg", label: "FFmpeg" },
-  { value: "custom", label: "Custom" },
-];
-
-export default function PromptInput({
-  onSubmit,
-  isStreaming,
-  provider,
-  onProviderChange,
-}: PromptInputProps) {
+export default function PromptInput({ onSubmit, isStreaming }: PromptInputProps) {
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      submit();
-    }
-  };
 
   const submit = () => {
     const trimmed = value.trim();
@@ -44,81 +21,95 @@ export default function PromptInput({
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      submit();
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setValue(e.target.value);
-    // auto-resize
     const el = e.target;
     el.style.height = "auto";
     el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
   };
 
   return (
-    <div className="border-t border-white/[0.08] bg-app-black px-4 py-4 flex-shrink-0">
-      <div className="flex flex-col gap-2 max-w-3xl mx-auto">
-        {/* Toolbar */}
-        <div className="flex items-center justify-between">
-          {/* Provider selector */}
-          <div className="flex items-center gap-1 bg-app-bg1 border border-white/[0.08] rounded-sm p-0.5">
-            {PROVIDERS.map((p) => (
-              <button
-                key={p.value}
-                onClick={() => onProviderChange(p.value)}
-                className={`font-mono text-[9px] uppercase tracking-wider px-2 py-1 rounded-[2px] transition-all ${
-                  provider === p.value
-                    ? "bg-app-bg3 text-app-fg1 border border-white/20"
-                    : "text-app-fg3 hover:text-app-fg2"
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
-          {/* Mode indicator */}
-          <span className="font-mono text-[9px] text-app-fg3/60 bg-app-bg1 border border-white/[0.08] px-2 py-1 rounded-sm">
-            LOCAL
-          </span>
-        </div>
-
+    <div style={{
+      borderTop: "1px solid var(--border)",
+      background: "var(--black)",
+      padding: "0.875rem 1.5rem",
+      flexShrink: 0,
+    }}>
+      <div style={{
+        maxWidth: "48rem",
+        margin: "0 auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.5rem",
+      }}>
         {/* Textarea */}
-        <div className="relative">
-          <textarea
-            ref={textareaRef}
-            value={value}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-            disabled={isStreaming}
-            placeholder="Describe a scene to compile…"
-            className={`
-              w-full min-h-[72px] max-h-[200px] resize-none
-              bg-app-bg1 border border-white/[0.08] focus:border-white/20
-              rounded-sm p-3 pr-4
-              font-sans text-sm text-app-fg1 placeholder:text-app-fg3/50
-              outline-none transition-colors leading-relaxed
-              disabled:opacity-50 disabled:cursor-not-allowed
-            `}
-            rows={3}
-          />
-        </div>
+        <textarea
+          ref={textareaRef}
+          value={value}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          disabled={isStreaming}
+          placeholder="Describe a scene to compile…"
+          rows={3}
+          style={{
+            width: "100%",
+            minHeight: "4.5rem",
+            maxHeight: "12.5rem",
+            resize: "none",
+            background: "var(--bg-1)",
+            border: "1px solid var(--border)",
+            borderRadius: "3px",
+            padding: "0.75rem",
+            fontFamily: "var(--font-sans)",
+            fontSize: "0.875rem",
+            color: "var(--fg-1)",
+            outline: "none",
+            lineHeight: 1.6,
+            transition: "border-color 0.15s",
+            opacity: isStreaming ? 0.5 : 1,
+            cursor: isStreaming ? "not-allowed" : "auto",
+          }}
+          onFocus={(e) => { e.target.style.borderColor = "rgba(211,198,170,0.2)"; }}
+          onBlur={(e) => { e.target.style.borderColor = "var(--border)"; }}
+        />
 
         {/* Bottom row */}
-        <div className="flex items-center justify-between">
-          <span className="font-mono text-[9px] text-app-fg3/40">
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "0.6rem",
+            color: "rgba(157,169,160,0.3)",
+          }}>
             ↵ Enter to render · Shift + ↵ for newline
           </span>
-          <motion.button
-            whileTap={{ scale: 0.96 }}
+          <button
             onClick={submit}
             disabled={isStreaming || !value.trim()}
-            className={`
-              font-mono text-xs px-4 py-1.5 rounded-sm transition-all
-              ${isStreaming || !value.trim()
-                ? "bg-app-primary/30 text-app-black/50 cursor-not-allowed"
-                : "bg-app-primary text-app-black hover:bg-app-primary/90 cursor-pointer"
-              }
-            `}
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.7rem",
+              fontWeight: 600,
+              letterSpacing: "0.04em",
+              padding: "0.4rem 1.1rem",
+              borderRadius: "3px",
+              border: "none",
+              cursor: isStreaming || !value.trim() ? "not-allowed" : "pointer",
+              background: isStreaming || !value.trim() ? "rgba(167,192,128,0.25)" : "#A7C080",
+              color: isStreaming || !value.trim() ? "rgba(30,35,38,0.5)" : "#1E2326",
+              transition: "background 0.15s, transform 0.1s",
+            }}
+            onMouseDown={(e) => { (e.target as HTMLButtonElement).style.transform = "scale(0.96)"; }}
+            onMouseUp={(e) => { (e.target as HTMLButtonElement).style.transform = "scale(1)"; }}
           >
             {isStreaming ? "◼ Running…" : "▶ Render"}
-          </motion.button>
+          </button>
         </div>
       </div>
     </div>

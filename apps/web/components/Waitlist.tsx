@@ -50,14 +50,14 @@ export default function Waitlist() {
     <section id="waitlist" className="waitlist-section" aria-labelledby="waitlist-title">
       <div className="waitlist-inner">
         <p className="section-label waitlist-label">
-          Early Access
+          Newsletter
         </p>
         <h2 className="waitlist-title" id="waitlist-title">
-          Be first to render.
+          Join our newsletter.
         </h2>
         <p className="waitlist-desc">
-          OpenAnim is in private development. Join the waitlist and get early
-          access before the public launch.
+          Get updates on new features, renderer releases, and early access
+          invites delivered straight to your inbox.
         </p>
 
         {state === 'success' ? (

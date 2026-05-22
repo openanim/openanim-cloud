@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   description: "Deterministic animation rendering orchestration",
 };
 
+export const dynamic = "force-dynamic";
+
 export default function DashboardPage() {
   return <AppShell />;
 }

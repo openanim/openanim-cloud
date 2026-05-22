@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Settings, Plus } from "lucide-react";
+import { Settings, Plus, Film, Package } from "lucide-react";
+import Link from "next/link";
 import type { Session, RenderMode } from "@/lib/mock-session";
 
 interface SidebarProps {
@@ -29,38 +30,105 @@ export default function Sidebar({
   onToggleMode,
 }: SidebarProps) {
   return (
-    <div className="flex flex-col w-[220px] flex-shrink-0 h-full bg-app-bg1 border-r border-white/[0.08]">
-      {/* Top — Logo + Mode */}
-      <div className="px-4 pt-5 pb-4 border-b border-white/[0.08]">
-        <div className="flex items-center justify-between mb-3">
-          <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-app-fg1">
+    <div style={{
+      width: "280px",
+      flexShrink: 0,
+      display: "flex",
+      flexDirection: "column",
+      height: "100%",
+      background: "var(--bg-1)",
+      borderRight: "1px solid var(--border)",
+      overflow: "hidden",
+    }}>
+
+      {/* ── Top: Logo + Mode toggle ── */}
+      <div style={{
+        padding: "1.25rem 1.25rem 1rem",
+        borderBottom: "1px solid var(--border)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.875rem",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "0.8rem",
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: "var(--fg-1)",
+            fontWeight: 600,
+          }}>
             OpenAnim
           </span>
           <button
             onClick={onToggleMode}
-            className={`font-mono text-[8px] uppercase tracking-wider px-2 py-0.5 rounded-sm border transition-all ${
-              mode === "local"
-                ? "bg-app-primary/10 text-app-primary border-app-primary/25"
-                : "bg-blue-500/10 text-blue-400 border-blue-500/20"
-            }`}
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.65rem",
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              padding: "0.25rem 0.65rem",
+              borderRadius: "3px",
+              cursor: "pointer",
+              border: mode === "local"
+                ? "1px solid rgba(167,192,128,0.3)"
+                : "1px solid rgba(96,165,250,0.3)",
+              background: mode === "local"
+                ? "rgba(167,192,128,0.08)"
+                : "rgba(96,165,250,0.08)",
+              color: mode === "local" ? "#A7C080" : "#93c5fd",
+              transition: "all 0.15s",
+            }}
           >
             {mode}
           </button>
         </div>
 
-        {/* New session */}
+        {/* New session button */}
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={onNewSession}
-          className="w-full flex items-center justify-center gap-1.5 font-mono text-[10px] text-app-fg2 hover:text-app-fg1 border border-white/[0.08] hover:border-white/20 rounded-sm py-1.5 transition-all hover:bg-app-bg2"
+          style={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.5rem",
+            fontFamily: "var(--font-mono)",
+            fontSize: "0.75rem",
+            color: "var(--fg-2)",
+            background: "transparent",
+            border: "1px solid var(--border)",
+            borderRadius: "4px",
+            padding: "0.55rem",
+            cursor: "pointer",
+            transition: "background 0.15s, color 0.15s, border-color 0.15s",
+          }}
+          onMouseEnter={(e) => {
+            const el = e.currentTarget;
+            el.style.background = "var(--bg-2)";
+            el.style.color = "var(--fg-1)";
+            el.style.borderColor = "rgba(211,198,170,0.2)";
+          }}
+          onMouseLeave={(e) => {
+            const el = e.currentTarget;
+            el.style.background = "transparent";
+            el.style.color = "var(--fg-2)";
+            el.style.borderColor = "var(--border)";
+          }}
         >
-          <Plus size={10} />
+          <Plus size={13} />
           New Session
         </motion.button>
       </div>
 
-      {/* Middle — Sessions list */}
-      <div className="flex-1 overflow-y-auto py-2" style={{ scrollbarWidth: "none" }}>
+      {/* ── Middle: Session list ── */}
+      <div style={{
+        flex: 1,
+        overflowY: "auto",
+        padding: "0.5rem 0",
+        scrollbarWidth: "none",
+      }}>
         <SectionHeader>Sessions</SectionHeader>
         {sessions.map((session) => (
           <SessionItem
@@ -71,39 +139,80 @@ export default function Sidebar({
           />
         ))}
 
-        <SectionHeader>Renders</SectionHeader>
+        <SectionHeader icon={<Film size={11} />}>Renders</SectionHeader>
         <PlaceholderItem label="fourier_v1.mp4" />
         <PlaceholderItem label="backprop_draft.mp4" />
 
-        <SectionHeader>Artifacts</SectionHeader>
+        <SectionHeader icon={<Package size={11} />}>Artifacts</SectionHeader>
         <PlaceholderItem label="fourier_transform_v1" />
         <PlaceholderItem label="sorting_viz_v2" />
       </div>
 
-      {/* Bottom — Provider pills + Settings */}
-      <div className="border-t border-white/[0.08] p-3 flex flex-col gap-3">
-        <div className="flex flex-wrap gap-1">
-          {["MANIM", "REMOTION", "CUSTOM"].map((p) => (
-            <button
-              key={p}
-              className="font-mono text-[8px] uppercase tracking-wider bg-app-bg2 hover:bg-app-bg3 border border-white/[0.08] rounded-sm px-2 py-0.5 text-app-fg3 hover:text-app-fg2 transition-all"
-            >
-              {p}
-            </button>
-          ))}
-        </div>
-        <button className="flex items-center gap-1.5 text-app-fg3 hover:text-app-fg2 transition-colors">
-          <Settings size={11} />
-          <span className="font-mono text-[9px]">Settings</span>
-        </button>
+      {/* ── Bottom: Settings ── */}
+      <div style={{
+        borderTop: "1px solid var(--border)",
+        padding: "0.875rem 1.25rem",
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.5rem",
+      }}>
+        <Link
+          href="/dashboard/settings"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            width: "100%",
+            padding: "0.6rem 0.75rem",
+            background: "transparent",
+            border: "1px solid transparent",
+            borderRadius: "4px",
+            cursor: "pointer",
+            color: "var(--fg-2)",
+            transition: "background 0.15s, color 0.15s, border-color 0.15s",
+            textDecoration: "none",
+          }}
+          onMouseEnter={(e) => {
+            const el = e.currentTarget as HTMLAnchorElement;
+            el.style.background = "var(--bg-2)";
+            el.style.color = "var(--fg-1)";
+            el.style.borderColor = "var(--border)";
+          }}
+          onMouseLeave={(e) => {
+            const el = e.currentTarget as HTMLAnchorElement;
+            el.style.background = "transparent";
+            el.style.color = "var(--fg-2)";
+            el.style.borderColor = "transparent";
+          }}
+        >
+          <Settings size={15} style={{ flexShrink: 0, color: "rgba(157,169,160,0.6)" }} />
+          <span style={{
+            fontFamily: "var(--font-sans)",
+            fontSize: "0.8rem",
+            fontWeight: 500,
+          }}>
+            Settings
+          </span>
+        </Link>
       </div>
     </div>
   );
 }
 
-function SectionHeader({ children }: { children: React.ReactNode }) {
+function SectionHeader({ children, icon }: { children: React.ReactNode; icon?: React.ReactNode }) {
   return (
-    <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-app-fg3/50 px-4 pt-4 pb-1.5">
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "0.4rem",
+      fontFamily: "var(--font-mono)",
+      fontSize: "0.65rem",
+      letterSpacing: "0.12em",
+      textTransform: "uppercase",
+      color: "rgba(157,169,160,0.45)",
+      padding: "0.875rem 1.25rem 0.4rem",
+    }}>
+      {icon && <span style={{ opacity: 0.6 }}>{icon}</span>}
       {children}
     </div>
   );
@@ -121,28 +230,56 @@ function SessionItem({
   return (
     <motion.button
       whileHover={{ x: 2 }}
-      transition={{ duration: 0.15 }}
+      transition={{ duration: 0.12 }}
       onClick={onSelect}
-      className={`
-        w-full text-left px-4 py-2 transition-colors relative
-        ${isActive
-          ? "bg-app-bg3 border-l-2 border-app-primary"
-          : "hover:bg-app-bg2 border-l-2 border-transparent"
-        }
-      `}
+      style={{
+        width: "100%",
+        textAlign: "left",
+        padding: "0.6rem 1.25rem",
+        background: isActive ? "var(--bg-3)" : "transparent",
+        borderLeft: isActive ? "2px solid #A7C080" : "2px solid transparent",
+        border: "none",
+        borderLeftStyle: "solid",
+        cursor: "pointer",
+        transition: "background 0.15s",
+        display: "block",
+      }}
+      onMouseEnter={(e) => {
+        if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = "var(--bg-2)";
+      }}
+      onMouseLeave={(e) => {
+        if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+      }}
     >
-      <p className={`font-sans text-[11px] truncate ${isActive ? "text-app-fg1" : "text-app-fg2"}`}>
+      <p style={{
+        fontFamily: "var(--font-sans)",
+        fontSize: "0.82rem",
+        color: isActive ? "var(--fg-1)" : "var(--fg-2)",
+        fontWeight: isActive ? 500 : 400,
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        marginBottom: "0.2rem",
+      }}>
         {session.title}
       </p>
-      <div className="flex items-center gap-1.5 mt-0.5">
-        <span
-          className="font-mono text-[8px] uppercase"
-          style={{ color: PROVIDER_COLORS[session.provider] ?? "#9DA9A0" }}
-        >
+      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+        <span style={{
+          fontFamily: "var(--font-mono)",
+          fontSize: "0.62rem",
+          textTransform: "uppercase",
+          color: PROVIDER_COLORS[session.provider] ?? "#9DA9A0",
+        }}>
           {session.provider}
         </span>
-        <span className="text-app-fg3/40 text-[8px]">·</span>
-        <span className="font-mono text-[8px] text-app-fg3/50">{session.mode}</span>
+        <span style={{ color: "rgba(157,169,160,0.3)", fontSize: "0.6rem" }}>·</span>
+        <span style={{
+          fontFamily: "var(--font-mono)",
+          fontSize: "0.62rem",
+          color: "rgba(157,169,160,0.4)",
+        }}>
+          {session.mode}
+        </span>
       </div>
     </motion.button>
   );
@@ -150,8 +287,17 @@ function SessionItem({
 
 function PlaceholderItem({ label }: { label: string }) {
   return (
-    <div className="px-4 py-1.5">
-      <p className="font-mono text-[10px] text-app-fg3/40 truncate">{label}</p>
+    <div style={{ padding: "0.4rem 1.25rem" }}>
+      <p style={{
+        fontFamily: "var(--font-mono)",
+        fontSize: "0.72rem",
+        color: "rgba(157,169,160,0.35)",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      }}>
+        {label}
+      </p>
     </div>
   );
 }

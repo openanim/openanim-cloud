@@ -7,9 +7,6 @@ export default async function DashboardGroupLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
-  if (!session?.user) {
-    redirect("/login");
-  }
-  // AppShell provides its own full-screen layout — no wrapper here
+  if (!session?.user) redirect("/login");
   return <>{children}</>;
 }

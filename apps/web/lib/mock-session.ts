@@ -208,22 +208,6 @@ export const MOCK_SESSIONS: Session[] = [
         artifact: mockArtifact,
         ts: new Date().toISOString(),
       },
-      {
-        id: "m5",
-        role: "code",
-        lang: "python",
-        content: `class FourierScene(Scene):
-    def construct(self):
-        axes = Axes(x_range=[-4, 4], y_range=[-2, 2])
-        signal = axes.plot(lambda t: np.sin(2 * PI * t), color=GREEN)
-        spectrum = axes.plot(lambda f: np.abs(np.fft.fft([...]))[int(f)],
-                             color=TEAL)
-        self.play(Create(axes), run_time=0.6)
-        self.play(Create(signal), run_time=1.5)
-        self.play(Transform(signal, spectrum), run_time=1.4)
-        self.wait(0.7)`,
-        ts: new Date().toISOString(),
-      },
     ],
   },
   {

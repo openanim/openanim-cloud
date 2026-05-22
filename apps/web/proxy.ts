@@ -1,6 +1,13 @@
+
+// Re-enable auth: uncomment the line below and remove the bypass function
 export { auth as proxy } from "@/auth";
 
+// Remove this bypass block once credentials are set:
+// export function proxy(_request: NextRequest) {
+//   return NextResponse.next();
+// }
+
+
 export const config = {
-  // Protect /dashboard routes. Exclude static files and auth endpoints.
   matcher: ["/dashboard/:path*"],
 };

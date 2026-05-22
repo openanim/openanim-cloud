@@ -2,31 +2,20 @@
 
 import { useEffect, useRef } from "react";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
-import { PanelRight } from "lucide-react";
 import Message from "./Message";
 import PromptInput from "./PromptInput";
-import type { Session, ArtifactData, Provider } from "@/lib/mock-session";
+import type { Session } from "@/lib/mock-session";
 
 interface OrchestrationPanelProps {
   session: Session;
   isStreaming: boolean;
-  showInspector: boolean;
-  onToggleInspector: () => void;
   onSubmitPrompt: (text: string) => void;
-  onArtifactExpand: (a: ArtifactData) => void;
-  provider: Provider;
-  onProviderChange: (p: Provider) => void;
 }
 
 export default function OrchestrationPanel({
   session,
   isStreaming,
-  showInspector,
-  onToggleInspector,
   onSubmitPrompt,
-  onArtifactExpand,
-  provider,
-  onProviderChange,
 }: OrchestrationPanelProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -35,49 +24,66 @@ export default function OrchestrationPanel({
   }, [session.messages, isStreaming]);
 
   return (
-    <div className="flex flex-col flex-1 overflow-hidden bg-app-black min-w-0">
-      {/* Header bar */}
-      <div className="flex items-center justify-between px-6 py-3 border-b border-white/[0.08] flex-shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
-          <span className="font-sans text-sm text-app-fg1 font-medium truncate">
-            {session.title}
-          </span>
-          <span className="font-mono text-[9px] text-app-fg3/60 bg-app-bg1 border border-white/[0.08] px-2 py-0.5 rounded-sm uppercase flex-shrink-0">
-            {session.provider}
-          </span>
-        </div>
-        <button
-          onClick={onToggleInspector}
-          title="Toggle Inspector"
-          className={`p-1.5 rounded-sm transition-colors hover:bg-app-bg2 ${
-            showInspector ? "text-app-primary" : "text-app-fg3 hover:text-app-fg1"
-          }`}
-        >
-          <PanelRight size={14} />
-        </button>
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      flex: 1,
+      overflow: "hidden",
+      background: "var(--black)",
+      minWidth: 0,
+    }}>
+      {/* Header */}
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0.6rem 1.5rem",
+        borderBottom: "1px solid var(--border)",
+        flexShrink: 0,
+      }}>
+        <span style={{
+          fontFamily: "var(--font-sans)",
+          fontSize: "0.8rem",
+          color: "var(--fg-1)",
+          fontWeight: 500,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}>
+          {session.title}
+        </span>
       </div>
 
       {/* Message stream */}
-      <ScrollArea.Root className="flex-1 overflow-hidden">
-        <ScrollArea.Viewport className="h-full w-full">
-          <div className="max-w-3xl mx-auto px-6 py-8 flex flex-col gap-6">
+      <ScrollArea.Root style={{ flex: 1, overflow: "hidden" }}>
+        <ScrollArea.Viewport style={{ height: "100%", width: "100%" }}>
+          <div style={{
+            maxWidth: "48rem",
+            margin: "0 auto",
+            padding: "2rem 1.5rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.5rem",
+          }}>
             {session.messages.length === 0 ? (
               <EmptyState />
             ) : (
               session.messages.map((msg) => (
-                <Message
-                  key={msg.id}
-                  message={msg}
-                  onArtifactExpand={onArtifactExpand}
-                />
+                <Message key={msg.id} message={msg} />
               ))
             )}
 
-            {/* Streaming indicator */}
             {isStreaming && (
-              <div className="flex items-center gap-2.5 py-1">
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.25rem 0" }}>
                 <StreamingDots />
-                <span className="font-mono text-[10px] text-app-fg3/60">Compiling…</span>
+                <span style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.6rem",
+                  color: "rgba(157,169,160,0.45)",
+                  letterSpacing: "0.05em",
+                }}>
+                  Compiling…
+                </span>
               </div>
             )}
 
@@ -86,33 +92,46 @@ export default function OrchestrationPanel({
         </ScrollArea.Viewport>
         <ScrollArea.Scrollbar
           orientation="vertical"
-          className="flex w-[5px] touch-none select-none p-[1px] bg-transparent transition-colors hover:bg-app-bg2 mr-0.5"
+          style={{ display: "flex", width: "5px", padding: "1px", background: "transparent", transition: "background 0.2s" }}
         >
-          <ScrollArea.Thumb className="relative flex-1 rounded-full bg-white/10" />
+          <ScrollArea.Thumb style={{ flex: 1, borderRadius: "9999px", background: "rgba(255,255,255,0.08)" }} />
         </ScrollArea.Scrollbar>
       </ScrollArea.Root>
 
       {/* Prompt input */}
-      <PromptInput
-        onSubmit={onSubmitPrompt}
-        isStreaming={isStreaming}
-        provider={provider}
-        onProviderChange={onProviderChange}
-      />
+      <PromptInput onSubmit={onSubmitPrompt} isStreaming={isStreaming} />
     </div>
   );
 }
 
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center h-full min-h-[60vh] gap-3">
-      <div className="w-10 h-10 rounded-sm border border-white/[0.08] flex items-center justify-center bg-app-bg1">
-        <span className="text-app-primary text-lg font-mono">▶</span>
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: "60vh",
+      gap: "0.75rem",
+    }}>
+      <div style={{
+        width: "2.25rem",
+        height: "2.25rem",
+        borderRadius: "3px",
+        border: "1px solid var(--border)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "var(--bg-1)",
+      }}>
+        <span style={{ color: "#A7C080", fontSize: "1rem", fontFamily: "var(--font-mono)" }}>▶</span>
       </div>
-      <div className="text-center">
-        <p className="font-mono text-xs text-app-fg2 mb-1">Ready to compile</p>
-        <p className="font-mono text-[10px] text-app-fg3/60">
-          Describe a scene to render · e.g. "Fourier transform using Manim"
+      <div style={{ textAlign: "center" }}>
+        <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.72rem", color: "var(--fg-2)", marginBottom: "0.3rem" }}>
+          Ready to compile
+        </p>
+        <p style={{ fontFamily: "var(--font-mono)", fontSize: "0.6rem", color: "rgba(157,169,160,0.4)" }}>
+          Describe a scene · e.g. "Fourier transform animation"
         </p>
       </div>
     </div>
@@ -121,12 +140,19 @@ function EmptyState() {
 
 function StreamingDots() {
   return (
-    <div className="flex gap-1 items-center">
+    <div style={{ display: "flex", gap: "3px", alignItems: "center" }}>
       {[0, 1, 2].map((i) => (
         <span
           key={i}
-          className="w-1 h-1 rounded-full bg-app-primary/60 animate-pulse"
-          style={{ animationDelay: `${i * 200}ms` }}
+          style={{
+            width: "4px",
+            height: "4px",
+            borderRadius: "50%",
+            background: "rgba(167,192,128,0.5)",
+            display: "block",
+            animation: "pulse 1.2s ease-in-out infinite",
+            animationDelay: `${i * 0.18}s`,
+          }}
         />
       ))}
     </div>
