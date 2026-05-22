@@ -1,0 +1,19 @@
+name = "openanim-api"
+main = "src/index.ts"
+compatibility_date = "2026-05-22"
+compatibility_flags = ["nodejs_compat"]
+
+# ── R2 Object Storage ─────────────────────────────────────────────────────────
+# Run `wrangler r2 bucket create openanim-assets` to create the bucket
+[[r2_buckets]]
+binding = "ASSETS_BUCKET"
+bucket_name = "openanim-assets"
+# preview_bucket_name = "openanim-assets-dev"  # optional: separate dev bucket
+
+# ── Environment Secrets ───────────────────────────────────────────────────────
+# Set these with: wrangler secret put <KEY>
+# Required secrets:
+#   DATABASE_URL          — Neon PostgreSQL connection string
+#   GOOGLE_CLIENT_ID      — Google OAuth 2.0 client ID
+#   GOOGLE_CLIENT_SECRET  — Google OAuth 2.0 client secret
+#   JWT_SECRET            — Random string (min 32 chars) for signing JWTs

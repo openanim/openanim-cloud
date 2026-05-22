@@ -1,15 +1,28 @@
 # OpenAnim Cloud
 
-OpenAnim Cloud is the commercial SaaS platform built around the OpenAnim deterministic orchestration engine.
+OpenAnim Cloud is moving to a monorepo while keeping the current landing page intact.
 
-## Special Acknowledgments
+## Structure
 
-This project is only possible because of the intelligent minds that created the following amazing open-source projects. We would like to give a huge acknowledgment to them:
+- `.` - Next.js landing page and marketing site
+- `apps/api` - Hono backend for waitlist, auth, and Cloudflare R2 access
+- `packages/shared` - shared API contracts and types
 
-- **[Manim](https://github.com/ManimCommunity/manim)** - The mathematical animation engine that inspired the core visualization capabilities.
-- **[Remotion](https://www.remotion.dev/)** - The incredible framework for creating videos programmatically with React.
-- **[FFmpeg](https://ffmpeg.org/)** - The Swiss Army knife of audio/video processing that powers the rendering and encoding pipeline.
-- **[PlantUML](https://plantuml.com/)** - The component that enables generating beautiful diagrams from text.
-- **And all other open-source contributors** whose tools make this project possible (including Mermaid and other code-to-illustration makers).
+## Development
 
-Thank you for your hard work and for making your technology available to the world!
+- `npm run dev` - start the Next.js landing page
+- `npm run dev:api` - start the Hono backend on port `8787`
+- `npm run build` - build the Next.js app
+- `npm run build:api` - typecheck the backend workspace
+
+## Environment
+
+Copy `.env.example` and set:
+
+- `DATABASE_URL` for the backend
+- `NEXT_PUBLIC_API_URL` for the frontend waitlist form
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` for future auth work
+
+## Next Steps
+
+The current landing page stays in place for now. The next implementation step is wiring Google auth into the backend and adding R2 upload endpoints behind the Hono API.

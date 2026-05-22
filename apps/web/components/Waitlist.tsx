@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { joinWaitlist } from '@/app/actions/waitlist';
+import type { WaitlistResponse } from '@openanim/shared';
 
 type State = 'idle' | 'loading' | 'success' | 'duplicate' | 'error';
 
@@ -14,18 +14,26 @@ export default function Waitlist() {
     if (!email) return;
     setState('loading');
     try {
-      const data = await joinWaitlist(email);
-      
-      if (data.success) {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787';
+      const response = await fetch(`${apiUrl}/waitlist`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      const data = (await response.json()) as WaitlistResponse;
+
+      if (response.ok && data.success) {
         setState('success');
         setMsg(data.message || "You're on the list.");
         setEmail('');
-      } else if (data.status === 'duplicate') {
+      } else if (!data.success && data.status === 'duplicate') {
         setState('duplicate');
         setMsg(data.error || "You're already on the waitlist.");
       } else {
         setState('error');
-        setMsg(data.error || 'Something went wrong. Try again.');
+        setMsg(!data.success && data.error ? data.error : 'Something went wrong. Try again.');
       }
     } catch {
       setState('error');
@@ -41,7 +49,7 @@ export default function Waitlist() {
   return (
     <section id="waitlist" className="waitlist-section" aria-labelledby="waitlist-title">
       <div className="waitlist-inner">
-        <p className="section-label" style={{ justifyContent: 'center', marginBottom: '1.25rem' }}>
+        <p className="section-label waitlist-label">
           Early Access
         </p>
         <h2 className="waitlist-title" id="waitlist-title">
@@ -53,7 +61,7 @@ export default function Waitlist() {
         </p>
 
         {state === 'success' ? (
-          <div className={msgClass} role="status" aria-live="polite" style={{ fontSize: '0.9rem', height: 'auto' }}>
+          <div className={`${msgClass} waitlist-msg--success`} role="status" aria-live="polite">
             ✓ &nbsp;{msg}
           </div>
         ) : (
@@ -63,7 +71,7 @@ export default function Waitlist() {
             noValidate
             aria-label="Waitlist signup form"
           >
-            <label htmlFor="waitlist-email" style={{ position: 'absolute', left: '-9999px' }}>
+            <label htmlFor="waitlist-email" className="sr-only">
               Email address
             </label>
             <input
