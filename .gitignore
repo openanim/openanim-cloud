@@ -14,6 +14,9 @@ out/
 build/
 dist/
 
+# cloudflare wrangler
+.wrangler/
+
 # env files — never commit secrets
 .env
 .env.local

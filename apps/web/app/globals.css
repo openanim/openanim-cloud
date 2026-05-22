@@ -1,3 +1,24 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Everforest dark palette — mirrors the CSS vars below */
+  --color-app-black:        #1E2326;
+  --color-app-bg1:          #272E33;
+  --color-app-bg2:          #2E383C;
+  --color-app-bg3:          #374145;
+  --color-app-fg1:          #D3C6AA;
+  --color-app-fg2:          #9DA9A0;
+  --color-app-fg3:          rgb(157 169 160 / 0.72);
+  --color-app-fg4:          rgb(157 169 160 / 0.18);
+  --color-app-border:       rgb(211 198 170 / 0.08);
+  --color-app-border-bright:rgb(211 198 170 / 0.2);
+  --color-app-primary:      #A7C080;
+  --color-app-primary-dim:  rgb(167 192 128 / 0.35);
+  --color-app-red:          #E67E80;
+  --color-app-yellow:       #DBBC7F;
+  --color-app-blue:         #7FBBB3;
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
