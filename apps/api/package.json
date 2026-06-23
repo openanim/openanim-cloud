@@ -9,12 +9,12 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.1.0",
+    "@neondatabase/serverless": "latest",
     "@openanim/shared": "workspace:*",
-    "hono": "^4.7.11"
+    "hono": "latest"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250512.0",
-    "wrangler": "^4.27.0"
+    "@cloudflare/workers-types": "latest",
+    "wrangler": "latest"
   }
 }
